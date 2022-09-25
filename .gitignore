@@ -106,3 +106,6 @@ dist
 build/
 
 ios/Pods
+android/.gradle
+android/.idea
+android/local.properties
