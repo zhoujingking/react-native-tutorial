@@ -1,35 +1,89 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
 import {
+  FlatList,
   SafeAreaView,
-  StatusBar,
-  Switch,
   Text,
   View,
+  Animated
 } from 'react-native';
 
+import { v4 as uuid } from 'uuid';
+
+const getList = () => {
+  return [
+    {
+      id: uuid(),
+    },
+    {
+      id: uuid(),
+    },
+    {
+      id: uuid(),
+    },
+    {
+      id: uuid(),
+    },
+    {
+      id: uuid(),
+    }
+  ]
+}
 
 const HomeScreen = () => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const onSwitchChanged = val => {
-    setIsEnabled(val);
+  const [list, setList] = useState([]);
+  useEffect(() => {
+    setList(getList());
+  }, []);
+  const onLoadMore = () => {
+    setList(pre => pre.concat(getList()))
+  };
+
+  const heightAni = useRef(new Animated.Value(50)).current;
+  const onScroll = ({nativeEvent}) => {
+    console.log(nativeEvent)
+    const { contentOffset } = nativeEvent;
+    if (contentOffset.y <= 10) {
+      Animated.timing(heightAni, {
+        toValue: 50,
+        duration: 100,
+        useNativeDriver: false
+      }).start();
+    } else {
+      Animated.timing(heightAni, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: false
+      }).start();
+    }
   }
   return (
-    <SafeAreaView>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#aaaaaa"
-        hidden={false}
-      ></StatusBar>
-      <View style={{ width: 150, height: 50, backgroundColor: 'cyan' }}>
-        <Text>GODKING ONE</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{
+        height: 32,
+        alignItems: 'center',
+        backgroundColor: 'cyan'
+      }}>
+        <Text>Search Text Box, need to be fixed at top</Text>
       </View>
-      <Switch
-        trackColor={{ false: "red", true: "purple" }}
-        thumbColor={isEnabled ? "red" : "green"}
-        ios_backgroundColor="grey"
-        onValueChange={onSwitchChanged}
-        value={isEnabled}
-      />
+      <Animated.View style={{ height: heightAni, backgroundColor: 'grey' }}>
+        <Text>Topic Arear</Text>
+      </Animated.View>
+      <View style={{
+        height: 40,
+        backgroundColor: 'red'
+      }}>
+      </View>
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={list}
+          renderItem={(item) => <Text>item</Text>}
+          onEndReached={onLoadMore}
+          onScroll={onScroll}
+        >
+
+        </FlatList>
+      </View>
     </SafeAreaView>
   );
 };
