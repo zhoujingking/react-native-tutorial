@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { v4 as uuid } from 'uuid';
+import { TabView, SceneMap } from 'react-native-tab-view';
 
 const getList = () => {
   return [
@@ -30,6 +31,9 @@ const getList = () => {
   ]
 }
 
+
+
+
 const HomeScreen = () => {
   const [list, setList] = useState([]);
   useEffect(() => {
@@ -41,7 +45,6 @@ const HomeScreen = () => {
 
   const heightAni = useRef(new Animated.Value(50)).current;
   const onScroll = ({nativeEvent}) => {
-    console.log(nativeEvent)
     const { contentOffset } = nativeEvent;
     if (contentOffset.y <= 10) {
       Animated.timing(heightAni, {
@@ -57,6 +60,39 @@ const HomeScreen = () => {
       }).start();
     }
   }
+
+  const FirstRoute = () => (
+    <FlatList
+      data={list}
+      renderItem={(item) => <Text>item</Text>}
+      onEndReached={onLoadMore}
+      onScroll={onScroll}
+    >
+    </FlatList> 
+  );
+  
+  const SecondRoute = () => (
+    <FlatList
+      data={list}
+      renderItem={(item) => <Text>item</Text>}
+      onEndReached={onLoadMore}
+      onScroll={onScroll}
+    >
+    </FlatList> 
+  );
+  
+  const renderScene = SceneMap({
+    first: FirstRoute,
+    second: SecondRoute,
+  });
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: 'first', title: 'First' },
+    { key: 'second', title: 'Second' },
+  ]);
+
+  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{
@@ -69,20 +105,12 @@ const HomeScreen = () => {
       <Animated.View style={{ height: heightAni, backgroundColor: 'grey' }}>
         <Text>Topic Arear</Text>
       </Animated.View>
-      <View style={{
-        height: 40,
-        backgroundColor: 'red'
-      }}>
-      </View>
       <View style={{ flex: 1 }}>
-        <FlatList
-          data={list}
-          renderItem={(item) => <Text>item</Text>}
-          onEndReached={onLoadMore}
-          onScroll={onScroll}
-        >
-
-        </FlatList>
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+        />
       </View>
     </SafeAreaView>
   );
